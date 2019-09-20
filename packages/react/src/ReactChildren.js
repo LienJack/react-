@@ -313,14 +313,14 @@ function mapIntoWithKeyPrefixInternal(children, array, prefix, func, context) {
   if (prefix != null) {
     escapedPrefix = escapeUserProvidedKey(prefix) + '/';
   }
-  const traverseContext = getPooledTraverseContext(
+  const traverseContext = getPooledTraverseContext( // 获取对象池
     array,
     escapedPrefix,
     func,
     context,
   );
   traverseAllChildren(children, mapSingleChildIntoContext, traverseContext);
-  releaseTraverseContext(traverseContext);
+  releaseTraverseContext(traverseContext); // 重置放回对象池
 }
 
 /**

@@ -111,7 +111,7 @@ function defineRefPropWarningGetter(props, displayName) {
 const ReactElement = function(type, key, ref, self, source, owner, props) {
   const element = {
     // This tag allows us to uniquely identify this as a React Element
-    $$typeof: REACT_ELEMENT_TYPE,
+    $$typeof: REACT_ELEMENT_TYPE, // 就是通过 $$typeof 来帮助我们识别这是一个 ReactElement
 
     // Built-in properties that belong on the element
     type: type,
@@ -168,7 +168,7 @@ const ReactElement = function(type, key, ref, self, source, owner, props) {
  * Create and return a new ReactElement of the given type.
  * See https://reactjs.org/docs/react-api.html#createelement
  */
-export function createElement(type, config, children) {
+export function createElement(type, config, children) { // type 节点类型（dom|组件），config 属性， children 子组件
   let propName;
 
   // Reserved names are extracted
@@ -180,10 +180,10 @@ export function createElement(type, config, children) {
   let source = null;
 
   if (config != null) {
-    if (hasValidRef(config)) {
+    if (hasValidRef(config)) { // 合法ref
       ref = config.ref;
     }
-    if (hasValidKey(config)) {
+    if (hasValidKey(config)) { // 合法的key
       key = '' + config.key;
     }
 
@@ -193,19 +193,20 @@ export function createElement(type, config, children) {
     for (propName in config) {
       if (
         hasOwnProperty.call(config, propName) &&
-        !RESERVED_PROPS.hasOwnProperty(propName)
+        !RESERVED_PROPS.hasOwnProperty(propName) // 检测props是否合法
       ) {
-        props[propName] = config[propName];
+        props[propName] = config[propName]; // 存储props
       }
     }
   }
 
   // Children can be more than one argument, and those are transferred onto
   // the newly allocated props object.
-  const childrenLength = arguments.length - 2;
+  const childrenLength = arguments.length - 2; // 多个children的长度
   if (childrenLength === 1) {
     props.children = children;
   } else if (childrenLength > 1) {
+    // 将children变成数组
     const childArray = Array(childrenLength);
     for (let i = 0; i < childrenLength; i++) {
       childArray[i] = arguments[i + 2];
@@ -215,14 +216,17 @@ export function createElement(type, config, children) {
         Object.freeze(childArray);
       }
     }
-    props.children = childArray;
+    props.children = childArray; // 组件调用时候的children
   }
 
   // Resolve default props
+  // 默认的props,使用如下
+  // class Comp extend React.component
+  // Comp.defaultProps = { value: 1 }
   if (type && type.defaultProps) {
     const defaultProps = type.defaultProps;
     for (propName in defaultProps) {
-      if (props[propName] === undefined) {
+      if (props[propName] === undefined) { // 如果没有就使用默认值
         props[propName] = defaultProps[propName];
       }
     }
@@ -241,7 +245,8 @@ export function createElement(type, config, children) {
       }
     }
   }
-  return ReactElement(
+  // 返回了一个元素节点
+  return ReactElement( // 创建一个元素节点
     type,
     key,
     ref,

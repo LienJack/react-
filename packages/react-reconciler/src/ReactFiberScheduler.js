@@ -1502,6 +1502,7 @@ function computeExpirationForFiber(currentTime: ExpirationTime, fiber: Fiber) {
     if (isCommitting) {
       // Updates that occur during the commit phase should have sync priority
       // by default.
+      // 同步
       expirationTime = Sync;
     } else {
       // Updates during the render phase should expire at the same time as
@@ -1514,9 +1515,11 @@ function computeExpirationForFiber(currentTime: ExpirationTime, fiber: Fiber) {
     if (fiber.mode & ConcurrentMode) {
       if (isBatchingInteractiveUpdates) {
         // This is an interactive update
+        // 交互事件，优先级较高
         expirationTime = computeInteractiveExpiration(currentTime);
       } else {
         // This is an async update
+        // 异步，优先级较低
         expirationTime = computeAsyncExpiration(currentTime);
       }
       // If we're in the middle of rendering a tree, do not update at the same
@@ -1615,9 +1618,9 @@ function retrySuspendedRoot(
     requestWork(root, rootExpirationTime);
   }
 }
-
+// 根据fiber找到fiber root对象
 function scheduleWorkToRoot(fiber: Fiber, expirationTime): FiberRoot | null {
-  recordScheduleUpdate();
+  recordScheduleUpdate(); // 记录更新的时间
 
   if (__DEV__) {
     if (fiber.tag === ClassComponent) {
@@ -1626,7 +1629,7 @@ function scheduleWorkToRoot(fiber: Fiber, expirationTime): FiberRoot | null {
     }
   }
 
-  // Update the source fiber's expiration time
+  // Update the source fiber's expiration time 更新源fiber更新事件
   if (
     fiber.expirationTime === NoWork ||
     fiber.expirationTime > expirationTime
@@ -1647,7 +1650,7 @@ function scheduleWorkToRoot(fiber: Fiber, expirationTime): FiberRoot | null {
   if (node === null && fiber.tag === HostRoot) {
     root = fiber.stateNode;
   } else {
-    while (node !== null) {
+    while (node !== null) { // 向上找
       alternate = node.alternate;
       if (
         node.childExpirationTime === NoWork ||
@@ -1727,19 +1730,19 @@ function scheduleWork(fiber: Fiber, expirationTime: ExpirationTime) {
   }
 
   if (
-    !isWorking &&
-    nextRenderExpirationTime !== NoWork &&
+    !isWorking && // 有任务正在渲染
+    nextRenderExpirationTime !== NoWork && // 有高级的任务
     expirationTime < nextRenderExpirationTime
   ) {
     // This is an interruption. (Used for performance tracking.)
     interruptedBy = fiber;
-    resetStack();
+    resetStack(); //重置任务更新
   }
   markPendingPriorityLevel(root, expirationTime);
   if (
     // If we're in the render phase, we don't need to schedule this root
     // for an update, because we'll do it before we exit...
-    !isWorking ||
+    !isWorking || // 有任务正在渲染
     isCommitting ||
     // ...unless this is a different root than the one we're rendering.
     nextRoot !== root
@@ -1828,7 +1831,7 @@ let lastCommittedRootDuringThisBatch: FiberRoot | null = null;
 const timeHeuristicForUnitOfWork = 1;
 
 function recomputeCurrentRendererTime() {
-  const currentTimeMs = now() - originalStartTimeMs;
+  const currentTimeMs = now() - originalStartTimeMs; // performance.now()方法返回一个精确到毫秒的
   currentRendererTime = msToExpirationTime(currentTimeMs);
 }
 
@@ -1992,7 +1995,7 @@ function requestWork(root: FiberRoot, expirationTime: ExpirationTime) {
     scheduleCallbackWithExpirationTime(root, expirationTime);
   }
 }
-
+// 添加调度任务队列
 function addRootToSchedule(root: FiberRoot, expirationTime: ExpirationTime) {
   // Add the root to the schedule.
   // Check if this root is already part of the schedule.
@@ -2015,7 +2018,7 @@ function addRootToSchedule(root: FiberRoot, expirationTime: ExpirationTime) {
       expirationTime < remainingExpirationTime
     ) {
       // Update the priority.
-      root.expirationTime = expirationTime;
+      root.expirationTime = expirationTime; // root优先最高
     }
   }
 }

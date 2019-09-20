@@ -18,14 +18,14 @@ if (__DEV__) {
 /**
  * Base class helpers for the updating state of a component.
  */
-function Component(props, context, updater) {
-  this.props = props;
-  this.context = context;
+function Component(props, context, updater) { // updater是重点
+  this.props = props; // 传参
+  this.context = context; // 上下文
   // If a component has string refs, we will assign a different object later.
   this.refs = emptyObject;
   // We initialize the default updater but the real one gets injected by the
   // renderer.
-  this.updater = updater || ReactNoopUpdateQueue;
+  this.updater = updater || ReactNoopUpdateQueue; // 以后
 }
 
 Component.prototype.isReactComponent = {};
@@ -55,7 +55,7 @@ Component.prototype.isReactComponent = {};
  * @final
  * @protected
  */
-Component.prototype.setState = function(partialState, callback) {
+Component.prototype.setState = function(partialState, callback) { // 更新方法
   invariant(
     typeof partialState === 'object' ||
       typeof partialState === 'function' ||
@@ -63,7 +63,7 @@ Component.prototype.setState = function(partialState, callback) {
     'setState(...): takes an object of state variables to update or a ' +
       'function which returns an object of state variables.',
   );
-  this.updater.enqueueSetState(this, partialState, callback, 'setState');
+  this.updater.enqueueSetState(this, partialState, callback, 'setState'); // 重点，更新方法
 };
 
 /**
@@ -80,7 +80,7 @@ Component.prototype.setState = function(partialState, callback) {
  * @final
  * @protected
  */
-Component.prototype.forceUpdate = function(callback) {
+Component.prototype.forceUpdate = function(callback) { // 强制更新
   this.updater.enqueueForceUpdate(this, callback, 'forceUpdate');
 };
 
@@ -136,10 +136,10 @@ function PureComponent(props, context, updater) {
   this.updater = updater || ReactNoopUpdateQueue;
 }
 
-const pureComponentPrototype = (PureComponent.prototype = new ComponentDummy());
+const pureComponentPrototype = (PureComponent.prototype = new ComponentDummy()); // 寄生组合式
 pureComponentPrototype.constructor = PureComponent;
 // Avoid an extra prototype jump for these methods.
 Object.assign(pureComponentPrototype, Component.prototype);
-pureComponentPrototype.isPureReactComponent = true;
+pureComponentPrototype.isPureReactComponent = true; // 唯一不同
 
 export {Component, PureComponent};

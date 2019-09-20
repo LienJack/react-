@@ -336,6 +336,7 @@ function ReactRoot(
   isConcurrent: boolean,
   hydrate: boolean,
 ) {
+  // root 是FiberRoot
   const root = DOMRenderer.createContainer(container, isConcurrent, hydrate);
   this._internalRoot = root;
 }
@@ -373,7 +374,7 @@ ReactRoot.prototype.legacy_renderSubtreeIntoContainer = function(
   children: ReactNodeList,
   callback: ?() => mixed,
 ): Work {
-  const root = this._internalRoot;
+  const root = this._internalRoot; // FiberRoot
   const work = new ReactWork();
   callback = callback === undefined ? null : callback;
   if (__DEV__) {
@@ -443,9 +444,9 @@ function getReactRootElementInContainer(container: any) {
     return container.firstChild;
   }
 }
-
+// 服务端渲染
 function shouldHydrateDueToLegacyHeuristic(container) {
-  const rootElement = getReactRootElementInContainer(container);
+  const rootElement = getReactRootElementInContainer(container); // 获取根节点
   return !!(
     rootElement &&
     rootElement.nodeType === ELEMENT_NODE &&
@@ -465,12 +466,14 @@ function legacyCreateRootFromDOMContainer(
   container: DOMContainer,
   forceHydrate: boolean,
 ): Root {
+  // 是否服务端渲染
   const shouldHydrate =
     forceHydrate || shouldHydrateDueToLegacyHeuristic(container);
   // First clear any existing content.
   if (!shouldHydrate) {
     let warned = false;
     let rootSibling;
+    // 把全部子节点删除
     while ((rootSibling = container.lastChild)) {
       if (__DEV__) {
         if (
@@ -526,12 +529,13 @@ function legacyRenderSubtreeIntoContainer(
   // TODO: Without `any` type, Flow says "Property cannot be accessed on any
   // member of intersection type." Whyyyyyy.
   let root: Root = (container._reactRootContainer: any);
-  if (!root) {
+  if (!root) { // 当root不存在，第一次创建
     // Initial mount
     root = container._reactRootContainer = legacyCreateRootFromDOMContainer(
       container,
       forceHydrate,
     );
+    // callback封装
     if (typeof callback === 'function') {
       const originalCallback = callback;
       callback = function() {
@@ -540,7 +544,8 @@ function legacyRenderSubtreeIntoContainer(
       };
     }
     // Initial mount should not be batched.
-    DOMRenderer.unbatchedUpdates(() => {
+    // 批量更新
+    DOMRenderer.unbatchedUpdates(() => { // 不需要批量更新
       if (parentComponent != null) {
         root.legacy_renderSubtreeIntoContainer(
           parentComponent,
@@ -634,17 +639,17 @@ const ReactDOM: Object = {
       callback,
     );
   },
-
+  // 定义render
   render(
-    element: React$Element<any>,
-    container: DOMContainer,
-    callback: ?Function,
+    element: React$Element<any>, // 组件
+    container: DOMContainer, // 要挂载到那个dom节点上面
+    callback: ?Function, // 渲染结束回调
   ) {
     return legacyRenderSubtreeIntoContainer(
       null,
       element,
       container,
-      false,
+      false, // 服务端渲染
       callback,
     );
   },

@@ -98,7 +98,7 @@ export type FiberRoot = {
   ...BaseFiberRootProperties,
   ...ProfilingOnlyFiberRootProperties,
 };
-
+// 创建FiberRoot
 export function createFiberRoot(
   containerInfo: any,
   isConcurrent: boolean,
@@ -106,7 +106,7 @@ export function createFiberRoot(
 ): FiberRoot {
   // Cyclic construction. This cheats the type system right now because
   // stateNode is any.
-  const uninitializedFiber = createHostRootFiber(isConcurrent);
+  const uninitializedFiber = createHostRootFiber(isConcurrent); // 之后再说
 
   let root;
   if (enableSchedulerTracing) {

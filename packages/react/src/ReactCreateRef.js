@@ -14,7 +14,7 @@ export function createRef(): RefObject {
     current: null,
   };
   if (__DEV__) {
-    Object.seal(refObject);
+    Object.seal(refObject); // 阻止添加新属性并将所有现有属性标记为不可配置,当前属性的值只要可写就可以改变
   }
   return refObject;
 }
