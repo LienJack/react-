@@ -344,7 +344,8 @@ ReactRoot.prototype.render = function(
   children: ReactNodeList,
   callback: ?() => mixed,
 ): Work {
-  const root = this._internalRoot;
+  const root = this._internalRoot; // FiberRoot
+   // Work 相关的是用来执行 callback 的，不是太重要，先忽略
   const work = new ReactWork();
   callback = callback === undefined ? null : callback;
   if (__DEV__) {
@@ -461,12 +462,15 @@ ReactGenericBatching.setBatchingImplementation(
 );
 
 let warnedAboutHydrateAPI = false;
-
+/**
+ *@param container 是需要挂载的 DOM 节点
+ *@param forceHydrate 我们讨论的浏览器端的，固定是 false，如果是服务端的就是 true
+ */
 function legacyCreateRootFromDOMContainer(
   container: DOMContainer,
   forceHydrate: boolean,
 ): Root {
-  // 是否服务端渲染
+  // 是否服务端渲染，复用dom节点
   const shouldHydrate =
     forceHydrate || shouldHydrateDueToLegacyHeuristic(container);
   // First clear any existing content.
@@ -512,7 +516,7 @@ function legacyCreateRootFromDOMContainer(
 function legacyRenderSubtreeIntoContainer(
   parentComponent: ?React$Component<any, any>,
   children: ReactNodeList,
-  container: DOMContainer,
+  container: DOMContainer, //传入的节点
   forceHydrate: boolean,
   callback: ?Function,
 ) {
@@ -531,11 +535,11 @@ function legacyRenderSubtreeIntoContainer(
   let root: Root = (container._reactRootContainer: any);
   if (!root) { // 当root不存在，第一次创建
     // Initial mount
-    root = container._reactRootContainer = legacyCreateRootFromDOMContainer(
+    root = container._reactRootContainer = legacyCreateRootFromDOMContainer( // 创建FiberRoot
       container,
       forceHydrate,
     );
-    // callback封装
+    //  如果有 callback 就执行
     if (typeof callback === 'function') {
       const originalCallback = callback;
       callback = function() {

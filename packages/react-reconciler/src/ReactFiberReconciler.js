@@ -105,6 +105,13 @@ function getContextForSubtree(
 
   return parentContext;
 }
+/**
+ *
+ * @param { 就是当前节点对应的 Fiber } current
+ * @param { ReactDOM.render 传进来的第一个参数，就是根对象 } element
+ * @param { 过期时间 } expirationTime
+ * @param { 封装过的 callback } callback
+ */
 
 function scheduleRootUpdate(
   current: Fiber,
@@ -131,6 +138,16 @@ function scheduleRootUpdate(
   }
 
   const update = createUpdate(expirationTime); // 标记应用需要更新的地点
+  /**
+   * update 对象内部属性
+   * expirationTime: expirationTime,
+   * tag: UpdateState,
+   * payload: null,
+   * callback: null,
+   * // 用于在队列中找到下一个节点
+   * next: null,
+   * nextEffect: null,
+   */
   // Caution: React DevTools currently depends on this property
   // being called "element".
   update.payload = {element};
@@ -145,12 +162,20 @@ function scheduleRootUpdate(
     );
     update.callback = callback;
   }
+  // 创建任务队列
   enqueueUpdate(current, update);
 
   scheduleWork(current, expirationTime); // 开始进行任务调度
   return expirationTime;
 }
-
+/**
+ *
+ * @param { ReactDOM.render 传进来的第一个参数，就是根对 } element
+ * @param { FiberRoot 实例  } container
+ * @param {*} parentComponent
+ * @param { 过期时间 } expirationTime
+ * @param { 封装过后的 callback } callback
+ */
 export function updateContainerAtExpirationTime(
   element: ReactNodeList,
   container: OpaqueRoot,
@@ -180,7 +205,7 @@ export function updateContainerAtExpirationTime(
     container.pendingContext = context;
   }
 
-  return scheduleRootUpdate(current, element, expirationTime, callback);
+  return scheduleRootUpdate(current, element, expirationTime, callback); // 任务调度
 }
 
 function findHostInstance(component: Object): PublicInstance | null {
@@ -272,15 +297,23 @@ export function createContainer(
   return createFiberRoot(containerInfo, isConcurrent, hydrate);
 }
 
+/**
+ *
+ * @param { ReactDOM.render 传进来的第一个参数，就是根对象 } element
+ * @param { FiberRoot 实例 } container
+ * @param {*} parentComponent
+ * @param {*} callback
+ */
 export function updateContainer(
   element: ReactNodeList,
   container: OpaqueRoot,
   parentComponent: ?React$Component<any, any>,
   callback: ?Function,
 ): ExpirationTime {
+  // updateContainer
   const current = container.current;
   const currentTime = requestCurrentTime();
-  const expirationTime = computeExpirationForFiber(currentTime, current);
+  const expirationTime = computeExpirationForFiber(currentTime, current); // 过期时间，非常关键
   return updateContainerAtExpirationTime(
     element,
     container,

@@ -114,7 +114,7 @@ export function createFiberRoot(
       current: uninitializedFiber,
       containerInfo: containerInfo,
       pendingChildren: null,
-
+      // 标记不同人物优先级
       earliestPendingTime: NoWork,
       latestPendingTime: NoWork,
       earliestSuspendedTime: NoWork,

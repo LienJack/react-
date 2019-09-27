@@ -299,7 +299,7 @@ function unstable_wrapCallback(callback) {
 
 function unstable_scheduleCallback(callback, deprecated_options) {
   var startTime =
-    currentEventStartTime !== -1 ? currentEventStartTime : getCurrentTime();
+    currentEventStartTime !== -1 ? currentEventStartTime : getCurrentTime(); // 重新计算当前时间
 
   var expirationTime;
   if (
@@ -330,14 +330,14 @@ function unstable_scheduleCallback(callback, deprecated_options) {
     callback,
     priorityLevel: currentPriorityLevel,
     expirationTime,
-    next: null,
+    next: null, // 链表
     previous: null,
   };
 
   // Insert the new callback into the list, ordered first by expiration, then
   // by insertion. So the new callback is inserted any other callback with
   // equal expiration.
-  if (firstCallbackNode === null) {
+  if (firstCallbackNode === null) { // 当前链表头
     // This is the first callback in the list.
     firstCallbackNode = newNode.next = newNode.previous = newNode;
     ensureHostCallbackIsScheduled();
@@ -362,7 +362,7 @@ function unstable_scheduleCallback(callback, deprecated_options) {
       firstCallbackNode = newNode;
       ensureHostCallbackIsScheduled();
     }
-
+    // 指针插入
     var previous = next.previous;
     previous.next = next.previous = newNode;
     newNode.next = next;
